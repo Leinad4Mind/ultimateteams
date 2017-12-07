@@ -406,6 +406,46 @@ class main
 				{
 					throw new \phpbb\exception\http_exception(403, $this->lang->lang('NOT_AUTHORISED'));
 				}
+
+				# Check if we're trying to delete the team image
+				$action = $this->request->variable('action', '');
+
+				if (!empty($action) && $this->request->is_ajax())
+				{
+					if (confirm_box(true))
+					{
+						# Delete the team image
+						if ($this->filesystem->exists($this->phpbb_root_path . $this->config['ut_image_dir'] . '/' . $team_to_edit['team_image']))
+						{
+							$this->filesystem->remove($this->phpbb_root_path . $this->config['ut_image_dir'] . '/' . $team_to_edit['team_image']);
+						}
+
+						# Update the team table.
+						$sql = 'UPDATE ' . $this->ut_teams_table . ' SET team_image = "" WHERE team_id = ' . (int) $team_id;
+						$this->db->sql_query($sql);
+
+						# Show success message
+						return new JsonResponse(array(
+							'MESSAGE_TITLE'	=> $this->lang->lang('CONFIRM'),
+							'MESSAGE_TEXT'	=> $this->lang->lang('UT_TEAM_IMAGE_SUCCESS'),
+							'REFRESH_DATA'	=> array('url' => $this->helper->route('mrgoldy_ultimateteams_manage', array('mode' => 'edit', 'team_id' => (int) $team_id)), 'time' => 3),
+						));
+					}
+					else
+					{
+						# Check if there is a team image is set.
+						if (empty($team_to_edit['team_image']))
+						{
+							trigger_error($this->lang->lang('UT_ERROR_NO_IMAGE'));
+						}
+
+						# Display mode
+						confirm_box(false, $this->lang->lang('UT_TEAM_IMAGE_CONFIRM'), build_hidden_fields(array(
+							'team_id'		=> $team_id,
+							'mode'			=> $mode,
+						)));
+					}
+				}
 			break;
 		}
 
@@ -590,6 +630,7 @@ class main
 
 			'U_TEAM_ADD_ACTION'		=> $this->helper->route('mrgoldy_ultimateteams_manage', array('mode' => 'add')),
 			'U_TEAM_EDIT_ACTION'	=> $this->helper->route('mrgoldy_ultimateteams_manage', array('mode' => 'edit', 'team_id' => (int) $team_id)),
+			'U_TEAM_IMAGE_DELETE'	=> $this->helper->route('mrgoldy_ultimateteams_manage', array('mode' => 'edit', 'team_id' => (int) $team_id, 'action' => 'deleteimage')),
 			'U_USER_INVITE_ACTION'	=> $this->helper->route('mrgoldy_ultimateteams_member', array('team_id' => (int) $team_id, 'mode' => 'invite', 'subject_id' => 0, 'action' => 'send')),
 
 			'S_ERROR'			=> !empty($errors),

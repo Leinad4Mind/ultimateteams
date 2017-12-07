@@ -15,7 +15,14 @@
 			<dl class="left-box">
 				<dt class="profile-avatar" style="font-size: 2em;">
 					{% if TEAM_IMAGE %}
-						<div class="team-image"><img src="{{ TEAM_IMAGE }}" /></div>
+						<div class="team-image">
+							<img src="{{ TEAM_IMAGE }}" />
+							<div class="team-image-delete">
+								<a href="{{ U_TEAM_IMAGE_DELETE }}" title="{{ lang('UT_TEAM_IMAGE_DELETE') }}" class="button" data-ajax="true" data-refresh="true">
+									<i class="icon icon-black fa-trash fa-fw" aria-hidden="true"></i><span>{{ lang('UT_TEAM_IMAGE_DELETE') }}</span>
+								</a>
+							</div>
+						</div>
 					{% else %}
 						<i class="fa fa-picture-o fa-5x"></i>
 					{% endif %}

@@ -27,6 +27,7 @@ $lang = array_merge($lang, array(
 	'UT_ERROR_NAME'					=> 'You have entered an invalid team name. It has to be between 1 and 60 characters. You currently have %s characters.', // Team name length
 	'UT_ERROR_NAME_NO'				=> 'You have to enter a team name.',
 	'UT_ERROR_NAME_TAKEN'			=> 'The team name you have entered is already taken: %s.', // Name of team that already has this name
+	'UT_ERROR_NO_IMAGE'				=> 'There is not team image to delete.',
 	'UT_ERROR_NO_TEAM'				=> 'No team was found for the given identifier: %s.', // Team ID
 	'UT_ERROR_NOT_MEMBER'			=> 'The slected user is not a member of %s.', // Team name
 	'UT_ERROR_SUBJECT_NOT_LEADER'	=> 'The member you are trying to demote is not a team leader.',
@@ -110,6 +111,9 @@ $lang = array_merge($lang, array(
 	'UT_TEAM_EDITED'				=> 'The team has been successfully edited.',
 
 	'UT_TEAM_IMAGE'					=> 'Team image',
+	'UT_TEAM_IMAGE_CONFIRM'			=> 'Are you sure you want to delete the team image?',
+	'UT_TEAM_IMAGE_DELETE'			=> 'Delete team image',
+	'UT_TEAM_IMAGE_SUCCESS'			=> 'You have successfully deleted the team image.',
 	'UT_TEAM_INVITEES'				=> 'Invitees',
 	'UT_TEAM_INVITEES_NONE'			=> 'No invitees',
 
