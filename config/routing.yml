@@ -1,0 +1,28 @@
+mrgoldy_ultimateteams_index:
+    path: /teams
+    defaults: { _controller: mrgoldy.ultimateteams.controller:index, page: 1 }
+
+mrgoldy_ultimateteams_indexpage:
+    path: /teams/page/{page}
+    defaults: { _controller: mrgoldy.ultimateteams.controller:index }
+    requirements:
+        page: \d+
+
+mrgoldy_ultimateteams_manage:
+    path: /teams/manage/{mode}/{team_id}
+    defaults: { _controller: mrgoldy.ultimateteams.controller:manage, team_id: 0 }
+    requirements:
+        team_id: \d+
+
+mrgoldy_ultimateteams_view:
+    path: /teams/view/{team_id}
+    defaults: { _controller: mrgoldy.ultimateteams.controller:view }
+    requirements:
+        team_id: \d+
+
+mrgoldy_ultimateteams_member:
+    path: /teams/{mode}/{team_id}/{subject_id}/{action}
+    defaults: { _controller: mrgoldy.ultimateteams.controller:member, action: '' }
+    requirements:
+        team_id: \d+
+        subject_id: \d+

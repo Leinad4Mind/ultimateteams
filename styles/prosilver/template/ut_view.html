@@ -1,0 +1,112 @@
+{% INCLUDE 'overall_header.html' %}
+{% INCLUDECSS '@mrgoldy_ultimateteams/ultimateteams.css' %}
+
+<h2>{{ lang('UT_TEAM_VIEWING') }} <i class="icon fa-angle-double-right fa-fw"></i> {{ TEAM_NAME }}</h2>
+
+<div class="panel bg1">
+	<div class="inner">
+		<dl class="left-box">
+			<dt class="profile-avatar" style="font-size: 2em;">
+				{% if TEAM_IMAGE %}
+					<div class="team-image"><img src="{{ TEAM_IMAGE }}" /></div>
+				{% else %}
+					<i class="fa fa-picture-o fa-5x"></i>
+				{% endif %}
+			</dt>
+		</dl>
+		<dl class="left-box details profile-details">
+			<dt><span style="color: #{{ TEAM_COLOUR }}; font-weight: bold;">{{ TEAM_TAG }}</dt>
+				<dd>
+					<span style="font-weight: bold;">{{ TEAM_NAME }}</span>
+					{% if S_TEAM_EDIT or S_TEAM_DELETE  or S_USER_JOIN  or S_USER_LEAVE or S_USER_INVITED %}
+						<ul class="post-buttons">
+							{% if S_USER_JOIN %}
+								<li>
+									<a href="{{ U_USER_JOIN }}" title="{{ lang('UT_TEAM_JOIN') }}" class="button button-icon-only" data-ajax="true" data-refresh="true">
+										<i class="icon icon-blue fa-user-plus fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_TEAM_JOIN') }}</span>
+									</a>
+								</li>
+							{% endif %}
+							{% if S_USER_INVITED %}
+								<li>
+									<a href="{{ U_USER_INVITE_ACCEPT }}" title="{{ lang('UT_INVITE_ACCEPT') }}" class="button button-icon-only" data-ajax="true" data-refresh="true">
+										<i class="icon icon-green fa-user-plus fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_INVITE_ACCEPT') }}</span>
+									</a>
+								</li>
+								<li>
+									<a href="{{ U_USER_INVITE_DENY }}" title="{{ lang('UT_INVITE_DENY') }}" class="button button-icon-only" data-ajax="true" data-refresh="true">
+										<i class="icon icon-orange fa-user-times fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_INVITE_DENY') }}</span>
+									</a>
+								</li>
+							{% endif %}
+							{% if S_USER_LEAVE %}
+								<li>
+									<a href="{{ U_USER_LEAVE }}" title="{{ lang('UT_TEAM_LEAVE') }}" class="button button-icon-only" data-ajax="true" data-refresh="true">
+										<i class="icon icon-orange fa-user-times fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_TEAM_LEAVE') }}</span>
+									</a>
+								</li>
+							{% endif %}
+							{% if S_TEAM_EDIT %}
+								<li>
+									<a href="{{ U_TEAM_EDIT }}" title="{{ lang('UT_TEAM_EDIT') }}" class="button button-icon-only">
+										<i class="icon icon-green fa-pencil fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_TEAM_EDIT') }}</span>
+									</a>
+								</li>
+							{% endif %}
+							{% if S_TEAM_DELETE %}
+								<li>
+									<a href="{{ U_TEAM_DELETE }}" title="{{ lang('UT_TEAM_DELETE') }}" class="button button-icon-only">
+										<i class="icon icon-red fa-trash fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_TEAM_DELETE') }}</span>
+									</a>
+								</li>
+							{% endif %}
+						</ul>
+					{% endif %}
+				</dd>
+			<dt>{{ lang('UT_TEAM_TYPE') }}{{ lang('COLON') }}</dt>
+				<dd>{{ TEAM_TYPE }} <i id="team_type_explain" class="icon icon-bluegray fa-info-circle fa-fw" title="{{ TEAM_TYPE_EXPLAIN }}"></i></dd>
+			{% if TEAM_WEBSITE %}
+				<dt>{{ lang('WEBSITE') }}{{ lang('COLON') }}</dt>
+					<dd><a href="{{ TEAM_WEBSITE }}" title="{{ lang('VISIT_WEBSITE') }}" target="_blank">{{ lang('VISIT_WEBSITE') }}</a></dt>
+			{% endif %}
+			{% if TEAM_LOCATION %}
+				<dt>{{ lang('LOCATION') }}{{ lang('COLON') }}</dt>
+					<dd>{{ TEAM_LOCATION }}</dt>
+			{% endif %}
+		</dl>
+	</div>
+</div>
+
+<div class="panel bg2">
+	<div class="inner">
+		<div class="column1">
+			<h3><i class="fa fa-id-card-o fa-fw" aria-hidden="true"></i>&nbsp;<span>{{ lang('UT_TEAM_DESCRIPTION') }}</span></h3>
+			{{ TEAM_DESCRIPTION }}
+		</div>
+
+		<div class="column2">
+			<h3><i class="fa fa-users fa-fw" aria-hidden="true"></i>&nbsp;
+				<span>
+					{{ lang('MEMBERLIST') }}&nbsp;({{ TEAM_MEMBERS }})
+					{% if S_TEAM_EDIT and applicants|length %} | {{ lang('UT_TEAM_APPLICANTS') }} ({{ applicants|length }}){% endif %}
+					{% if S_TEAM_EDIT and invitees|length %} | {{ lang('UT_TEAM_INVITEES') }} ({{ invitees|length }}){% endif %}
+				</span>
+			</h3>
+			<dl class="details">
+				{% for members in loops.members %}
+					<dt>
+						{% if members.S_IS_LEADER %}
+							<i class="icon icon-blue fa-user-circle fa-fw" title="{{ lang('UT_TEAM_LEADER') }}"></i>
+						{% else %}
+							<i class="icon icon-bluegray fa-user-circle-o fa-fw" title="{{ lang('UT_TEAM_MEMBER') }}"></i>
+						{% endif %}
+					</dt>
+					<dd>{{ members.FULL}}</dd>
+				{% endfor %}
+			</dl>
+		</div>
+	</div>
+</div>
+
+{% INCLUDEJS '@mrgoldy_ultimateteams/ut_view.js' %}
+{% INCLUDE 'overall_footer.html' %}

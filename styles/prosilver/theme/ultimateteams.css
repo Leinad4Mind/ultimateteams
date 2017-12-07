@@ -1,0 +1,46 @@
+.tooltip
+{
+	position: absolute;
+	color: #ffffff;
+	background-color: #4286f4;
+	border: 1px solid #aaaaca;
+	padding: 4px;
+	width: 200px;
+	border-radius: 5px;
+	box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+	-moz-box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+	-webkit-box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.team-image {
+	max-width: 200px;
+}
+
+.team-image img {
+	max-width: 100%;
+	border-top-left-radius: 7px;
+	border-bottom-left-radius: 7px;
+}
+
+@media all and (max-width: 900px) {
+	.team-image {
+		max-width: 150px;
+	}
+}
+
+@media all and (max-width: 825px) {
+	.team-image {
+		max-width: 125px;
+	}
+}
+
+@media all and (max-width: 700px) {
+	.team-image {
+		max-width: 100px;
+	}
+
+	.team-image img {
+		border-top-left-radius: 0;
+		border-bottom-left-radius: 0;
+	}
+}

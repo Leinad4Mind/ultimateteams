@@ -1,0 +1,147 @@
+{% INCLUDE 'overall_header.html' %}
+{% INCLUDECSS '@mrgoldy_ultimateteams/ultimateteams.css' %}
+
+{% if S_TEAM_EDIT %}
+	<h2>{{ lang('UT_TEAM_EDIT') }} <i class="icon fa-angle-double-right fa-fw"></i> {{ TEAM_NAME }}</h2>
+{% else %}
+	<h2>{{ lang('UT_TEAM_ADD') }}</h2>
+{% endif %}
+
+{% if S_ERROR %}<p class="error">{{ ERROR_MSG }}</p>{% endif %}
+
+<form name="team_update" method="post" enctype="multipart/form-data" action="{% if S_TEAM_ADD %}{{ U_TEAM_ADD_ACTION }}{% else %}{{ U_TEAM_EDIT_ACTION }}{% endif %}"{{ S_FORM_ENCTYPE }}>
+	<div class="panel bg1">
+		<div class="inner">
+			<dl class="left-box">
+				<dt class="profile-avatar" style="font-size: 2em;">
+					{% if TEAM_IMAGE %}
+						<div class="team-image"><img src="{{ TEAM_IMAGE }}" /></div>
+					{% else %}
+						<i class="fa fa-picture-o fa-5x"></i>
+					{% endif %}
+				</dt>
+			</dl>
+			<dl class="left-box details profile-details">
+				<dt>{{ lang('UT_TEAM_NAME') }}{{ lang('COLON') }}</dt>
+					<dd><input name="team_name" type="text" value="{{ TEAM_NAME }}" class="inputbox autowidth"></dd>
+				<dt>{{ lang('UT_TAG') }}{{ lang('COLON') }}</dt>
+					<dd><input name="team_tag" type="text" value="{{ TEAM_TAG }}" class="inputbox autowidth"></dd>
+				<dt>{{ lang('UT_TAG_COLOUR') }}{{ lang('COLON') }}</dt>
+					<dd><input name="team_colour" type="text" id="team_colour" value="{{ TEAM_COLOUR }}" size="6" min length="6" maxlength="6" />
+						{% if TEAM_COLOUR %}&nbsp;<span style="background-color: #{TEAM_COLOUR}">&nbsp; &nbsp;</span>{% endif %}&nbsp;&nbsp;<span>
+						[ <a href="#" id="color_palette_toggle"><i class="fa fa-paint-brush fa-icon" aria-hidden="true"></i>&nbsp;{{ lang('COLOUR_SWATCH') }}</a> ]</span>
+						<div id="color_palette_placeholder" style="display: none;" data-orientation="h" data-height="12" data-width="15" data-target="#team_colour"></div>
+					</dd>
+				<dt>{{ lang('UT_TEAM_IMAGE') }}{{ lang('COLON') }}</dt>
+					<dd><input name="team_image" type="file" class="inputbox autowidth"></dd>
+				<dt>{{ lang('UT_TEAM_TYPE') }}{{ lang('COLON') }}</dt>
+					<dd><label><input type="radio" class="radio" name="team_type" value="{{ S_TEAM_TYPE_VALUE_OPEN }}"{% if TEAM_TYPE == S_TEAM_TYPE_VALUE_OPEN %} checked="checked"{% endif %} /> {{ lang('UT_TEAM_TYPE_OPEN') }}</label>
+						<label><input type="radio" class="radio" name="team_type" value="{{ S_TEAM_TYPE_VALUE_REQUEST }}"{% if TEAM_TYPE == S_TEAM_TYPE_VALUE_REQUEST %} checked="checked"{% endif %} /> {{ lang('UT_TEAM_TYPE_REQUEST') }}</label>
+						<label><input type="radio" class="radio" name="team_type" value="{{ S_TEAM_TYPE_VALUE_CLOSED }}"{% if TEAM_TYPE == S_TEAM_TYPE_VALUE_CLOSED %} checked="checked"{% endif %} /> {{ lang('UT_TEAM_TYPE_CLOSED') }}</label></dd>
+				<dt>{{ lang('WEBSITE') }}{{ lang('COLON') }}</dt>
+					<dd><input name="team_website" type="url" value="{{ TEAM_WEBSITE }}" class="inputbox autowidth" size="40" maxlength="255"></dt>
+				<dt>{{ lang('LOCATION') }}{{ lang('COLON') }}</dt>
+					<dd><input name="team_location" type="text" value="{{ TEAM_LOCATION }}" class="inputbox autowidth" size="20" maxlength="100"></dt>
+			</dl>
+		</div>
+	</div>
+
+	<div class="panel bg2">
+		<div class="inner">
+				<h3><i class="fa fa-id-card-o fa-fw" aria-hidden="true"></i>&nbsp;<span>{{ lang('UT_TEAM_DESCRIPTION') }}</span></h3>
+
+				<textarea id="team_description" name="team_description" rows="10" data-bbcode="true" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);" onfocus="initInsertions();" style="width: 99%;">{{ TEAM_DESCRIPTION }}</textarea>
+				{{ BBCODE_STATUS }} | {{ SMILIES_STATUS }} | {{ URL_STATUS }}
+		</div>
+	</div>
+
+	<div class="panel bg3">
+		<div class="inner">
+			<fieldset class="submit-buttons">
+				<input class="button1" type="submit" id="cancel" name="cancel" value="{{ lang('CANCEL') }}" /> &nbsp;
+				<input class="button1" type="submit" id="submit" name="submit" value="{{ lang('SUBMIT') }}" />
+				{{ S_FORM_TOKEN }}
+			</fieldset>
+		</div>
+	</div>
+</form>
+
+<div class="panel bg2">
+	<div class="inner">
+		<div class="column1">
+			<h3><i class="fa fa-users fa-fw" aria-hidden="true"></i>&nbsp;<span>{{ lang('MEMBERLIST') }} ({{ TEAM_MEMBERS }})</span></h3>
+			<dl class="details">
+				{% for members in loops.members %}
+					<dt>
+						{% if members.S_IS_LEADER %}
+							<a href="{{ members.U_DEMOTE }}" title="{{ lang('UT_LEADER_DEMOTE') }}" class="button button-icon-only" data-ajax="true" data-refresh="true">
+								<i class="icon icon-red fa-unlock-alt fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_LEADER_DEMOTE') }}</span>
+							</a>
+						{% else %}
+							<a href="{{ members.U_KICK }}" title="{{ lang('UT_LEAVE_KICK') }}" class="button button-icon-only" data-ajax="true" data-refresh="true">
+								<i class="icon icon-red fa-user-times fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_LEAVE_KICK') }}</span>
+							</a>
+							<a href="{{ members.U_PROMOTE }}" title="{{ lang('UT_LEADER_PROMOTE') }}" class="button button-icon-only" data-ajax="true" data-refresh="true">
+								<i class="icon icon-red fa-unlock fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_LEADER_PROMOTE') }}</span>
+							</a>
+						{% endif %}
+					</dt>
+					<dd>{{ members.FULL}}</dd>
+				{% endfor %}
+			</dl>
+		</div>
+
+		<div class="column2">
+			<div class="column1">
+				<h3>{{ lang('UT_TEAM_APPLICANTS') }}&nbsp;({{ applicants|length }})</h3>
+				{% if applicants|length %}
+					<dl class="details">
+						{% for applicants in loops.applicants %}
+							<dt>
+								<a href="{{ applicants.U_ACCEPT }}" title="{{ lang('UT_REQUEST_ACCEPT') }}" class="button button-icon-only" data-ajax="true" data-refresh="true">
+									<i class="icon icon-green fa-user-plus fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_REQEUST_ACCEPT') }}</span>
+								</a>
+								<a href="{{ applicants.U_DENY }}" title="{{ lang('UT_REQUEST_DENY') }}" class="button button-icon-only" data-ajax="true" data-refresh="true">
+									<i class="icon icon-red fa-user-times fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_REQUEST_DENY') }}</span>
+								</a>
+							</dt>
+							<dd>{{ applicants.FULL }}</dd>
+						{% endfor %}
+					</dl>
+				{% else %}
+					<span>{{ lang('UT_TEAM_APPLICANTS_NONE') }}</span>
+				{% endif %}
+			</div>
+			<div class="column2">
+				<h3>{{ lang('UT_TEAM_INVITEES') }}&nbsp;({{ invitees|length }})</h3>
+				{% if invitees|length %}
+					<dl class="details">
+						{% for invitees in loops.invitees %}
+							<dt>
+								<a href="{{ invitees.U_WITHDRAW }}" title="{{ lang('UT_INVITE_WITHDRAW') }}" class="button button-icon-only" data-ajax="true" data-refresh="true">
+									<i class="icon icon-red fa-user-times fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_INVITE_WITHDRAW') }}</span>
+								</a>
+							</dt>
+							<dd>{{ invitees.FULL }}</dd>
+						{% endfor %}
+					</dl>
+				{% else %}
+					<span>{{ lang('UT_TEAM_INVITEES_NONE') }}</span>
+				{% endif %}
+				<br /><br />
+				<form id="action_user_invite_form" method="post" action="{{ U_USER_INVITE_ACTION }}" data-ajax="true">
+					<dl class="details">
+						<dt>{{ lang('UT_INVITE_SEND') }}{{ lang('COLON') }}</dt>
+						<dd><input type="text" name="invitee_username" class="inputbox autowidth" maxlength="255" /></dd>
+						<dt>&nbsp;</dt><dd><input class="button2" type="submit" id="submit" name="submit" value="{{ lang('UT_INVITE') }}" /></dd>
+					</dl>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+
+{% INCLUDE 'overall_footer.html' %}

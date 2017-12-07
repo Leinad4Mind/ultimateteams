@@ -1,0 +1,3 @@
+parameters:
+    mrgoldy.ultimateteams.tables.ut_teams: '%core.table_prefix%ut_teams'
+    mrgoldy.ultimateteams.tables.ut_correlation: '%core.table_prefix%ut_correlation'

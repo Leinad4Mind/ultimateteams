@@ -1,0 +1,76 @@
+{% INCLUDE 'overall_header.html' %}
+
+<h2 class="solo">{{ lang('UT_TEAMS') }}</h2>
+
+<div class="action-bar bar-top">
+	{% if S_TEAM_ADD %}
+		<a href="{{ U_TEAM_ADD }}" class="button" title="{{ lang('UT_TEAM_ADD') }}">
+			<span>{{ lang('UT_TEAM_ADD') }}</span> <i class="icon icon-green fa-user-plus fa-fw" aria-hidden="true"></i>
+		</a>
+	{% endif %}
+	<div class="pagination">
+		{{ TOTAL_TEAMS }}
+		{% if loops.pagination|length %}
+			{% INCLUDE 'pagination.html' %}
+		{% else %}
+			&bull; {{ PAGE_NUMBER }}
+		{% endif %}
+	</div>
+</div>
+
+<div id="teamslist" class="forumbg forumbg-table">
+	<div class="inner">
+		<table class="table1 team" id="team">
+		<thead>
+			<tr>
+				<th class="name"><span class="rank-img"><a href="{{ U_SORT_TAG }}#teamslist">{{ lang('UT_TAG') }}</a>&nbsp;</span><a href="{{ U_SORT_NAME }}#teamslist">{{ lang('UT_TEAM') }}</a></th>
+				<th class="info"><a href="{{ U_SORT_MEMBERS }}#teamslist">{{ lang('MEMBERLIST') }}</a></th>
+				<th class="info"><a href="{{ U_SORT_TYPE }}#teamslist">{{ lang('UT_TEAM_TYPE') }}</a></th>
+			</tr>
+		</thead>
+		<tbody>
+			{% if teams|length %}
+				{% for teams in loops.teams %}
+					<tr class="{% if teams.S_ROW_COUNT is even %}bg1{% else %}bg2{% endif %}">
+						<td>
+							<span class="rank-img" style="font-weight: bold; color: #{{ teams.COLOUR}}">{{ teams.TAG }}</span>
+							{% if S_TEAM_VIEW %}
+								<a href="{{ teams.U_VIEW }}">{{ teams.NAME }}</a>
+							{% else %}
+								<span>{{ teams.NAME }}</span>
+							{% endif %}
+						</td>
+						<td class="info">
+							{{ teams.MEMBERS }}
+						</td>
+						<td class="info">
+							{{ teams.TYPE }}
+						</td>
+					</tr>
+				{% endfor %}
+			{% else %}
+				<tr class="bg2"><td colspan="3">{{ lang('UT_NO_TEAMS') }}</td></tr>
+			{% endif %}
+		</tbody>
+	</table>
+	</div>
+</div>
+
+
+<div class="action-bar bar-bottom">
+	{% if S_TEAM_ADD %}
+		<a href="{{ U_TEAM_ADD }}" class="button" title="{{ lang('UT_TEAM_ADD') }}">
+			<span>{{ lang('UT_TEAM_ADD') }}</span> <i class="icon icon-green fa-user-plus fa-fw" aria-hidden="true"></i>
+		</a>
+	{% endif %}
+	<div class="pagination">
+		{{ TOTAL_TEAMS }}
+		{% if loops.pagination|length %}
+			{% INCLUDE 'pagination.html' %}
+		{% else %}
+			&bull; {{ PAGE_NUMBER }}
+		{% endif %}
+	</div>
+</div>
+
+{% INCLUDE 'overall_footer.html' %}

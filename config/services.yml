@@ -1,0 +1,53 @@
+imports:
+    - { resource: parameters.yml }
+
+services:
+    mrgoldy.ultimateteams.controller:
+        class: mrgoldy\ultimateteams\controller\main
+        arguments:
+            - '@auth'
+            - '@config'
+            - '@dbal.conn'
+            - '@files.factory'
+            - '@filesystem'
+            - '@controller.helper'
+            - '@language'
+            - '@log'
+            - '@notification_manager'
+            - '@pagination'
+            - '@text_formatter.parser'
+            - '@path_helper'
+            - '@text_formatter.renderer'
+            - '@request'
+            - '@template'
+            - '@user'
+            - '@text_formatter.utils'
+            - '%core.php_ext%'
+            - '%core.root_path%'
+            - '%mrgoldy.ultimateteams.tables.ut_teams%'
+            - '%mrgoldy.ultimateteams.tables.ut_correlation%'
+
+    mrgoldy.ultimateteams.listener:
+        class: mrgoldy\ultimateteams\event\main_listener
+        arguments:
+            - '@config'
+            - '@dbal.conn'
+            - '@controller.helper'
+            - '@language'
+            - '@template'
+            - '@user'
+            - '%core.php_ext%'
+            - '%mrgoldy.ultimateteams.tables.ut_teams%'
+            - '%mrgoldy.ultimateteams.tables.ut_correlation%'
+        tags:
+            - { name: event.listener }
+
+    mrgoldy.ultimateteams.notification.type.ultimateteams:
+        class: mrgoldy\ultimateteams\notification\type\ultimateteams
+        shared: false # service MUST not be shared for this to work!
+        parent: notification.type.base
+        calls:
+            - [set_controller_helper, ['@controller.helper']]
+            - [set_user_loader, ['@user_loader']]
+        tags:
+            - { name: notification.type }

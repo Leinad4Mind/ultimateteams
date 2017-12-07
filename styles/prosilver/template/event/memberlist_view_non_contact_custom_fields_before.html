@@ -1,0 +1,17 @@
+{% if UT_TEAM_COUNT > 1 %}{% INCLUDEJS '@mrgoldy_ultimateteams/ut_profile.js' %}{% endif %}
+
+{% if UT_TEAM_COUNT %}
+	{% if UT_TEAM_COUNT == '1' %}
+		<dt>{{ lang('UT_TEAM') }}{{ lang('COLON')}}</dt> <dd><a href="{{ U_UT_TEAM }}" title="{{ UT_TEAM_NAME }}"><span style="color: #{{ UT_TEAM_COLOUR }}">{{ UT_TEAM_TAG }}</span> {{ UT_TEAM_NAME }}</a></dd>
+	{% else %}
+		<dt>{{ lang('UT_TEAMS') }}{{ lang('COLON') }}</dt>
+		<dd>
+			<select id="ut_teams">
+				{% for ut_teams in loops.ut_teams %}
+					<option value="{{ ut_teams.U_TEAM }}"{% if ut_teams.SELECTED %} selected="selected"{% endif %}>{{ ut_teams.NAME }}</option>
+				{% endfor %}
+			</select>
+			<button id="ut_teams_go" class="button">{{ lang('GO') }}</button>
+		</dd>
+	{% endif %}
+{% endif %}

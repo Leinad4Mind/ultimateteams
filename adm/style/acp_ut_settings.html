@@ -1,0 +1,73 @@
+{% INCLUDE 'overall_header.html' %}
+
+<h1>{{ lang('ACP_ULTIMATETEAMS_SETTINGS') }}</h1>
+
+<form id="acp_board" name="ut_settings" method="post" action="{U_ACTION}">
+
+	<fieldset>
+		<legend>{{ lang('ACP_ULTIMATETEAMS_SETTINGS') }}</legend>
+		<dl>
+			<dt><label for="ut_enable_top_link">{{ lang('ACP_UT_ENABLE_TOP_LINK') }}{{ lang('COLON')}}</label></dt>
+			<dd><label><input type="radio" class="radio" name="ut_enable_top_link" value="1" <!-- IF UT_ENABLE_TOP_LINK -->checked="checked"<!-- ENDIF -->/> {{ lang('YES') }}</label>
+				<label><input type="radio" class="radio" name="ut_enable_top_link" value="0" <!-- IF not UT_ENABLE_TOP_LINK -->checked="checked"<!-- ENDIF --> /> {{ lang('NO') }}</label></dd>
+		</dl>
+		<dl>
+			<dt><label for="ut_enable_bottom_link">{{ lang('ACP_UT_ENABLE_BOTTOM_LINK') }}{{ lang('COLON')}}</label></dt>
+			<dd><label><input type="radio" class="radio" name="ut_enable_bottom_link" value="1" <!-- IF UT_ENABLE_BOTTOM_LINK -->checked="checked"<!-- ENDIF -->/> {{ lang('YES') }}</label>
+				<label><input type="radio" class="radio" name="ut_enable_bottom_link" value="0" <!-- IF not UT_ENABLE_BOTTOM_LINK -->checked="checked"<!-- ENDIF --> /> {{ lang('NO') }}</label></dd>
+		</dl>
+		<dl>
+			<dt><label for="ut_multiple_teams">{{ lang('ACP_UT_MULTIPLE_TEAMS') }}{{ lang('COLON')}}</label><br><span>{{ lang('ACP_UT_MULTIPLE_TEAMS_EXPLAIN') }}</span></dt>
+			<dd><label><input type="radio" class="radio" name="ut_multiple_teams" value="1" <!-- IF UT_MULTIPLE_TEAMS -->checked="checked"<!-- ENDIF -->/> {{ lang('YES') }}</label>
+				<label><input type="radio" class="radio" name="ut_multiple_teams" value="0" <!-- IF not UT_MULTIPLE_TEAMS -->checked="checked"<!-- ENDIF --> /> {{ lang('NO') }}</label></dd>
+		</dl>
+		<dl>
+			<dt><label for="ut_image_size">{{ lang('ACP_UT_IMAGE_SIZE') }}{{ lang('COLON') }}</label><br><span>{{ lang('ACP_UT_IMAGE_SIZE_EXPLAIN') }}</span></dt>
+			<dd><input type="number" name="ut_image_size" value="{{ UT_IMAGE_SIZE }}">&nbsp;<label for="ut_image_size">{{ lang('KIB') }}</label></dd>
+		</dl>
+		<dl>
+			<dt><label for="ut_image_dir">{{ lang('ACP_UT_IMAGE_DIR') }}{{ lang('COLON') }}</label><br><span>{{ lang('ACP_UT_IMAGE_DIR_EXPLAIN') }}</span></dt>
+			<dd><input type="text" name="ut_image_dir" value="{{ UT_IMAGE_DIR }}"></dd>
+		</dl>
+		<dl>
+			<dt><label for="ut_tag_length">{{ lang('ACP_UT_TAG_LENGTH') }}{{ lang('COLON') }}</label></dt>
+			<dd><input type="number" name="ut_tag_length" value="{{ UT_TAG_LENGTH }}" min="1" max="20"></dd>
+		</dl>
+	</fieldset>
+
+	<fieldset>
+		<legend>{{ lang('ACP_SUBMIT_CHANGES') }}</legend>
+		<p class="submit-buttons">
+			<input class="button1" type="submit" id="submit" name="submit" value="{{ lang('SUBMIT') }}" />&nbsp;
+			<input class="button2" type="reset" id="reset" name="reset" value="{{ lang('RESET') }}" />
+		</p>
+		{{ S_FORM_TOKEN }}
+	</fieldset>
+
+</form>
+
+<fieldset>
+	<legend>{{ lang('OPTIONS') }}</legend>
+
+	<form id="action_purge_team_form" method="post" action="{{ U_ACTION }}" data-ajax="true">
+		<dl>
+			<dt><label for="action_purge_team">{{ lang('ACP_UT_PURGE_TEAM_IMAGES') }}</label><br /><span>{{ lang('ACP_UT_PURGE_TEAM_IMAGES_EXPLAIN') }}</span></dt>
+			<dd><input type="hidden" name="action" value="purgeteam" /><input class="button2" type="submit" id="action_purge_team" name="action_purge_team" value="{{ lang('RUN') }}" /></dd>
+		</dl>
+	</form>
+	<form id="action_find_teams_form" method="post" action="{{ U_ACTION }}" data-ajax="true">
+		<dl>
+			<dt><label for="action_find_teams">{{ lang('ACP_UT_FIND_TEAMS') }}</label><br /><span>{{ lang('ACP_UT_FIND_TEAMS_EXPLAIN') }}</span></dt>
+			<dd><input type="hidden" name="action" value="findteams" /><input class="button2" type="submit" id="action_find_teams" name="action_find_teams" value="{{ lang('RUN') }}" /></dd>
+		</dl>
+	</form>
+
+</fieldset>
+
+Delete team image from team edit<br>
+Pagination on teams list<br>
+Order on teams list<br>
+Detailed viewonline page<br>
+Notifications
+
+{% INCLUDE 'overall_footer.html' %}
