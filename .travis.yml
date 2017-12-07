@@ -6,7 +6,7 @@ language: php
 matrix:
   include:
     - php: 5.5
-      env: DB=none;NOTESTS=1
+      env: DB=none;
     - php: 5.4
       env: DB=mysqli #myisam
     - php: 5.4
@@ -38,7 +38,7 @@ env:
   global:
     - EXTNAME="mrgoldy/ultimateteams"  # CHANGE name of the extension HERE
     - SNIFF="1"            # Should we run code sniffer on your code?
-    - IMAGE_ICC="0"        # Should we run icc profile sniffer on your images?
+    - IMAGE_ICC="1"        # Should we run icc profile sniffer on your images?
     - EPV="1"              # Should we run EPV (Extension Pre Validator) on your code?
     - PHPBB_BRANCH="3.2.x"
 
