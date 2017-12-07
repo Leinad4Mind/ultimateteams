@@ -853,6 +853,11 @@ class main
 								$user_status = $team['team_type'] == constants::UT_TEAM_TYPE_OPEN ? constants::UT_USER_STATUS_JOINED : constants::UT_USER_STATUS_REQUESTED;
 								$this->add_correlation($team_id, $subject_id, $user_status);
 								$refresh_url = $this->helper->route('mrgoldy_ultimateteams_view', array('team_id' => $team_id));
+
+								# Send a notification to the leaders
+								# send_ut_notification($event, $team_id, $team_name, $actionee_id, $recipients_array)
+								$notification_mode = $team['team_type'] == constants::UT_TEAM_TYPE_OPEN ? 'request_joined' : 'request_send';
+								$this->send_ut_notification($notification_mode, $team_id, $team['team_name'], $this->user->data['user_id'], array($subject_id));
 							break;
 
 							case 'withdraw':
@@ -863,11 +868,19 @@ class main
 							case 'deny':
 								$this->remove_correlation($team_id, $subject_id);
 								$refresh_url = $this->helper->route('mrgoldy_ultimateteams_manage', array('team_id' => $team_id, 'mode' => 'edit'));
+
+								# Send a notification to the subject
+								# send_ut_notification($event, $team_id, $team_name, $actionee_id, $recipients_array)
+								$this->send_ut_notification('request_denied', $team_id, $team['team_name'], $this->user->data['user_id'], array($subject_id));
 							break;
 
 							case 'accept':
 								$this->update_correlation($team_id, $subject_id, constants::UT_USER_STATUS_JOINED);
 								$refresh_url = $this->helper->route('mrgoldy_ultimateteams_manage', array('team_id' => $team_id, 'mode' => 'edit'));
+
+								# Send a notification to the subject
+								# send_ut_notification($event, $team_id, $team_name, $actionee_id, $recipients_array)
+								$this->send_ut_notification('request_accepted', $team_id, $team['team_name'], $this->user->data['user_id'], array($subject_id));
 							break;
 						}
 
@@ -937,6 +950,10 @@ class main
 							case 'send':
 								$this->add_correlation($team_id, $subject_id, constants::UT_USER_STATUS_INVITED);
 								$refresh_url = $this->helper->route('mrgoldy_ultimateteams_manage', array('team_id' => $team_id, 'mode' => 'edit'));
+
+								# Send notification to the subject
+								# send_ut_notification($event, $team_id, $team_name, $actionee_id, $recipients_array)
+								$this->send_ut_notification('invite_send', $team_id, $team['team_name'], $this->user->data['user_id'], array($subject_id));
 							break;
 
 							case 'withdraw':
@@ -947,11 +964,19 @@ class main
 							case 'deny':
 								$this->remove_correlation($team_id, $subject_id);
 								$refresh_url = $this->helper->route('mrgoldy_ultimateteams_view', array('team_id' => $team_id));
+
+								# Send notification to the subject
+								# send_ut_notification($event, $team_id, $team_name, $actionee_id, $recipients_array)
+								$this->send_ut_notification('invite_denied', $team_id, $team['team_name'], $this->user->data['user_id'], $team_leaders);
 							break;
 
 							case 'accept':
 								$this->update_correlation($team_id, $subject_id, constants::UT_USER_STATUS_JOINED);
 								$refresh_url = $this->helper->route('mrgoldy_ultimateteams_view', array('team_id' => $team_id));
+
+								# Send notification to the subject
+								# send_ut_notification($event, $team_id, $team_name, $actionee_id, $recipients_array)
+								$this->send_ut_notification('invite_accepted', $team_id, $team['team_name'], $this->user->data['user_id'], $team_leaders);
 							break;
 						}
 
@@ -1026,7 +1051,9 @@ class main
 							# Check if it's default group, otherwise update it
 							$this->update_default_team($team_id, $subject_id);
 
-							# Send out a notification to the leaders ABC
+							# Send out a notification to the leaders
+							# send_ut_notification($event, $team_id, $team_name, $actionee_id, $recipients_array)
+							$this->send_ut_notification('left', $team_id, $team['team_name'], $this->user->data['user_id'], $team_leaders);
 
 							# Show success message
 							$success_language = $this->lang->lang('UT_LEAVE_SELF_SUCCESS', $team['team_name']);
@@ -1066,7 +1093,9 @@ class main
 							# Check if it's default group, otherwise update it.
 							$this->update_default_team($team_id, $subject_id);
 
-							# Send out a notification to the subject ABC
+							# Send out a notification to the subject
+							# send_ut_notification($event, $team_id, $team_name, $actionee_id, $recipients_array)
+							$this->send_ut_notification('kicked', $team_id, $team['team_name'], $this->user->data['user_id'], array($subject_id));
 
 							# Show success message
 							$success_language = $this->lang->lang('UT_LEAVE_KICK_SUCCESS', $team['team_name']);
@@ -1105,7 +1134,9 @@ class main
 						$sql = 'UPDATE ' . $this->ut_correlation_table . ' SET team_leader = 1 WHERE team_id = ' . (int) $team_id . ' AND user_id = ' . (int) $subject_id;
 						$this->db->sql_query($sql);
 
-						# Send out a notification to the subject ABC
+						# Send out a notification to the subject
+						# send_ut_notification($event, $team_id, $team_name, $actionee_id, $recipients_array)
+						$this->send_ut_notification('promoted', $team_id, $team['team_name'], $this->user->data['user_id'], array($subject_id));
 
 						# Show success message
 						$success_language = $this->lang->lang('UT_LEADER_PROMOTE_SUCCESS');
@@ -1151,7 +1182,9 @@ class main
 						$sql = 'UPDATE ' . $this->ut_correlation_table . ' SET team_leader = 0 WHERE team_id = ' . (int) $team_id . ' AND user_id = ' . (int) $subject_id;
 						$this->db->sql_query($sql);
 
-						# Send out a notification to the subject ABC
+						# Send out a notification to the subject
+						# send_ut_notification($event, $team_id, $team_name, $actionee_id, $recipients_array)
+						$this->send_ut_notification('demoted', $team_id, $team['team_name'], $this->user->data['user_id'], array($subject_id));
 
 						# Show success message
 						$success_language = $this->lang->lang('UT_LEADER_DEMOTE_SUCCESS');
@@ -1323,5 +1356,21 @@ class main
 
 		$sql = 'UPDATE ' . USERS_TABLE . ' SET user_team_id = ' . (int) $new_team_id . ' WHERE user_id = ' . (int) $subject_id;
 		$this->db->sql_query($sql);
+	}
+
+	private function send_ut_notification($event, $team_id, $team_name, $actionee_id, $recipients_array)
+	{
+		# Increment our notifications sent counter
+		$this->config->increment('ut_notification_id', 1);
+
+		# Send out notification
+		$this->notification_manager->add_notifications('mrgoldy.ultimateteams.notification.type.ultimateteams', array(
+			'event'					=> (string) $event,
+			'team_id'				=> (int) $team_id,
+			'team_name'				=> (string) $team_name,
+			'actionee_id'			=> (int) $actionee_id,
+			'recipients_array'		=> (array) $recipients_array,
+			'ut_notification_id'	=> (int) $this->config['ut_notification_id'],
+		));
 	}
 }

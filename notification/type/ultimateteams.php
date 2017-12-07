@@ -99,7 +99,10 @@ class ultimateteams extends \phpbb\notification\type\base
 	 */
 	public function find_users_for_notification($data, $options = array())
 	{
-		$users[$data['author_id']] = $this->notification_manager->get_default_methods();
+		foreach ($data['recipients_array'] as $recipient)
+		{
+			$users[$recipient] = $this->notification_manager->get_default_methods();
+		}
 
 		return $users;
 	}
@@ -129,7 +132,6 @@ class ultimateteams extends \phpbb\notification\type\base
 			case 'deleted':
 				$title = $this->user->lang('UT_NOTIFICATION_DELETED', $username, $team_name); // 1: Username | 2: Username
 			break;
-
 			case 'invite_send':
 				$title = $this->user->lang('UT_NOTIFICATION_INVITE_SEND', $username, $team_name); // 1: Username | 2: Username
 			break;
@@ -147,6 +149,9 @@ class ultimateteams extends \phpbb\notification\type\base
 			break;
 			case 'request_denied':
 				$title = $this->user->lang('UT_NOTIFICATION_REQUEST_DENIED', $team_name); // 1: Team name
+			break;
+			case 'request_joined':
+				$title = $this->user->lang('UT_NOTIFICATION_REQUEST_JOINED', $username, $team_name); // 1: Username | 2: Username
 			break;
 			case 'left':
 				$title = $this->user->lang('UT_NOTIFICATION_LEFT', $username, $team_name); // 1: Username | 2: Username

@@ -66,80 +66,82 @@
 	</div>
 </form>
 
-<div class="panel bg2">
-	<div class="inner">
-		<div class="column1">
-			<h3><i class="fa fa-users fa-fw" aria-hidden="true"></i>&nbsp;<span>{{ lang('MEMBERLIST') }} ({{ TEAM_MEMBERS }})</span></h3>
-			<dl class="details">
-				{% for members in loops.members %}
-					<dt>
-						{% if members.S_IS_LEADER %}
-							<a href="{{ members.U_DEMOTE }}" title="{{ lang('UT_LEADER_DEMOTE') }}" class="button button-icon-only" data-ajax="true" data-refresh="true">
-								<i class="icon icon-red fa-unlock-alt fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_LEADER_DEMOTE') }}</span>
-							</a>
-						{% else %}
-							<a href="{{ members.U_KICK }}" title="{{ lang('UT_LEAVE_KICK') }}" class="button button-icon-only" data-ajax="true" data-refresh="true">
-								<i class="icon icon-red fa-user-times fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_LEAVE_KICK') }}</span>
-							</a>
-							<a href="{{ members.U_PROMOTE }}" title="{{ lang('UT_LEADER_PROMOTE') }}" class="button button-icon-only" data-ajax="true" data-refresh="true">
-								<i class="icon icon-red fa-unlock fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_LEADER_PROMOTE') }}</span>
-							</a>
-						{% endif %}
-					</dt>
-					<dd>{{ members.FULL}}</dd>
-				{% endfor %}
-			</dl>
-		</div>
-
-		<div class="column2">
+{% if S_TEAM_EDIT %}
+	<div class="panel bg2">
+		<div class="inner">
 			<div class="column1">
-				<h3>{{ lang('UT_TEAM_APPLICANTS') }}&nbsp;({{ applicants|length }})</h3>
-				{% if applicants|length %}
-					<dl class="details">
-						{% for applicants in loops.applicants %}
-							<dt>
-								<a href="{{ applicants.U_ACCEPT }}" title="{{ lang('UT_REQUEST_ACCEPT') }}" class="button button-icon-only" data-ajax="true" data-refresh="true">
-									<i class="icon icon-green fa-user-plus fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_REQEUST_ACCEPT') }}</span>
+				<h3><i class="fa fa-users fa-fw" aria-hidden="true"></i>&nbsp;<span>{{ lang('MEMBERLIST') }} ({{ TEAM_MEMBERS }})</span></h3>
+				<dl class="details">
+					{% for members in loops.members %}
+						<dt>
+							{% if members.S_IS_LEADER %}
+								<a href="{{ members.U_DEMOTE }}" title="{{ lang('UT_LEADER_DEMOTE') }}" class="button button-icon-only" data-ajax="true" data-refresh="true">
+									<i class="icon icon-red fa-unlock-alt fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_LEADER_DEMOTE') }}</span>
 								</a>
-								<a href="{{ applicants.U_DENY }}" title="{{ lang('UT_REQUEST_DENY') }}" class="button button-icon-only" data-ajax="true" data-refresh="true">
-									<i class="icon icon-red fa-user-times fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_REQUEST_DENY') }}</span>
+							{% else %}
+								<a href="{{ members.U_KICK }}" title="{{ lang('UT_LEAVE_KICK') }}" class="button button-icon-only" data-ajax="true" data-refresh="true">
+									<i class="icon icon-red fa-user-times fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_LEAVE_KICK') }}</span>
 								</a>
-							</dt>
-							<dd>{{ applicants.FULL }}</dd>
-						{% endfor %}
-					</dl>
-				{% else %}
-					<span>{{ lang('UT_TEAM_APPLICANTS_NONE') }}</span>
-				{% endif %}
+								<a href="{{ members.U_PROMOTE }}" title="{{ lang('UT_LEADER_PROMOTE') }}" class="button button-icon-only" data-ajax="true" data-refresh="true">
+									<i class="icon icon-red fa-unlock fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_LEADER_PROMOTE') }}</span>
+								</a>
+							{% endif %}
+						</dt>
+						<dd>{{ members.FULL}}</dd>
+					{% endfor %}
+				</dl>
 			</div>
+
 			<div class="column2">
-				<h3>{{ lang('UT_TEAM_INVITEES') }}&nbsp;({{ invitees|length }})</h3>
-				{% if invitees|length %}
-					<dl class="details">
-						{% for invitees in loops.invitees %}
-							<dt>
-								<a href="{{ invitees.U_WITHDRAW }}" title="{{ lang('UT_INVITE_WITHDRAW') }}" class="button button-icon-only" data-ajax="true" data-refresh="true">
-									<i class="icon icon-red fa-user-times fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_INVITE_WITHDRAW') }}</span>
-								</a>
-							</dt>
-							<dd>{{ invitees.FULL }}</dd>
-						{% endfor %}
-					</dl>
-				{% else %}
-					<span>{{ lang('UT_TEAM_INVITEES_NONE') }}</span>
-				{% endif %}
-				<br /><br />
-				<form id="action_user_invite_form" method="post" action="{{ U_USER_INVITE_ACTION }}" data-ajax="true">
-					<dl class="details">
-						<dt>{{ lang('UT_INVITE_SEND') }}{{ lang('COLON') }}</dt>
-						<dd><input type="text" name="invitee_username" class="inputbox autowidth" maxlength="255" /></dd>
-						<dt>&nbsp;</dt><dd><input class="button2" type="submit" id="submit" name="submit" value="{{ lang('UT_INVITE') }}" /></dd>
-					</dl>
-				</form>
+				<div class="column1">
+					<h3>{{ lang('UT_TEAM_APPLICANTS') }}&nbsp;({{ applicants|length }})</h3>
+					{% if applicants|length %}
+						<dl class="details">
+							{% for applicants in loops.applicants %}
+								<dt>
+									<a href="{{ applicants.U_ACCEPT }}" title="{{ lang('UT_REQUEST_ACCEPT') }}" class="button button-icon-only" data-ajax="true" data-refresh="true">
+										<i class="icon icon-green fa-user-plus fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_REQEUST_ACCEPT') }}</span>
+									</a>
+									<a href="{{ applicants.U_DENY }}" title="{{ lang('UT_REQUEST_DENY') }}" class="button button-icon-only" data-ajax="true" data-refresh="true">
+										<i class="icon icon-red fa-user-times fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_REQUEST_DENY') }}</span>
+									</a>
+								</dt>
+								<dd>{{ applicants.FULL }}</dd>
+							{% endfor %}
+						</dl>
+					{% else %}
+						<span>{{ lang('UT_TEAM_APPLICANTS_NONE') }}</span>
+					{% endif %}
+				</div>
+				<div class="column2">
+					<h3>{{ lang('UT_TEAM_INVITEES') }}&nbsp;({{ invitees|length }})</h3>
+					{% if invitees|length %}
+						<dl class="details">
+							{% for invitees in loops.invitees %}
+								<dt>
+									<a href="{{ invitees.U_WITHDRAW }}" title="{{ lang('UT_INVITE_WITHDRAW') }}" class="button button-icon-only" data-ajax="true" data-refresh="true">
+										<i class="icon icon-red fa-user-times fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('UT_INVITE_WITHDRAW') }}</span>
+									</a>
+								</dt>
+								<dd>{{ invitees.FULL }}</dd>
+							{% endfor %}
+						</dl>
+					{% else %}
+						<span>{{ lang('UT_TEAM_INVITEES_NONE') }}</span>
+					{% endif %}
+					<br /><br />
+					<form id="action_user_invite_form" method="post" action="{{ U_USER_INVITE_ACTION }}" data-ajax="true">
+						<dl class="details">
+							<dt>{{ lang('UT_INVITE_SEND') }}{{ lang('COLON') }}</dt>
+							<dd><input type="text" name="invitee_username" class="inputbox autowidth" maxlength="255" /></dd>
+							<dt>&nbsp;</dt><dd><input class="button2" type="submit" id="submit" name="submit" value="{{ lang('UT_INVITE') }}" /></dd>
+						</dl>
+					</form>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
+{% endif %}
 
 
 

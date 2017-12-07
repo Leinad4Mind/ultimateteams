@@ -66,13 +66,14 @@ $lang = array_merge($lang, array(
 	'UT_NOTIFICATION_DEMOTED'			=> '<strong>Demoted from team leader</strong> by %1$s for the team %2$s', // 1: Username | 2: Team name
 	'UT_NOTIFICATION_PROMOTED'			=> '<strong>Promoted to team leader</strong> by %1$s for the team %2$s', // 1: Username | 2: Team name
 	'UT_NOTIFICATION_KICKED'			=> '<strong>You have been kicked</strong> from the team %1$s', // 1: Team name
-	'UT_NOTIFICATION_LEFT'				=> '<strong>Team member left</strong>, %1$s left %2$s', // 1: Username | 2: Team name
+	'UT_NOTIFICATION_LEFT'				=> '<strong>Team member left</strong>, %1$s left the team %2$s', // 1: Username | 2: Team name
 	'UT_NOTIFICATION_INVITE_ACCEPTED'	=> '<strong>Team invite accepted</strong> by %1$s to join the team %2$s', // 1: Username | 2: Team name
 	'UT_NOTIFICATION_INVITE_DENIED'		=> '<strong>Team invite denied</strong> by %1$s to join the team %2$s', // 1: Username | 2: Team name
 	'UT_NOTIFICATION_INVITE_SEND'		=> '<strong>Team invite</strong> from %1$s to join the team %2$s', // 1: Username | 2: Team name
 	'UT_NOTIFICATION_REQUEST_ACCEPTED'	=> '<strong>Join request approved</strong> to join the team %1$s', // 1: Team name
 	'UT_NOTIFICATION_REQUEST_DENIED'	=> '<strong>Join request denied</strong> to join the team %1$s', // 1: Team name
 	'UT_NOTIFICATION_REQUEST_SEND'		=> '<strong>Join request</strong> from %1$s to join the team %2$s', // 1: Username | 2: Team name
+	'UT_NOTIFICATION_REQUEST_JOINED'	=> '<strong>New team member</strong>, %1$s has joined the team %1$s', // 1: Username | 2: Team name
 
 	'UT_REQUEST_ACCEPT'				=> 'Accept member',
 	'UT_REQUEST_ACCEPT_CONFIRM'		=> 'Are you sure you want to accept this applicant for this team?',
