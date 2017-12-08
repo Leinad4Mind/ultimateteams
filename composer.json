@@ -23,7 +23,6 @@
         }
     },
     "require-dev": {
-        "phing/phing": "2.4.*",
-        "phpbb/epv": "dev-master"
+        "phing/phing": "2.4.*"
     }
 }
