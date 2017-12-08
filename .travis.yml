@@ -1,5 +1,7 @@
 # Opt into fully virtualized infrastructure
-sudo: required
+# sudo: required
+
+sudo: false
 dist: precise
 
 language: php
@@ -50,15 +52,11 @@ branches:
     - /^develop-.*$/
     - /^\d+(\.\d+)?\.x$/
 
-before_install:
-  - chmod +x travis/prepare-phpbb.sh
-  - chmod +x travis/prepare-epv.sh
-
 install:
   - travis/prepare-phpbb.sh $EXTNAME $PHPBB_BRANCH
   - cd ../../phpBB3
   - travis/prepare-extension.sh $EXTNAME $PHPBB_BRANCH
-  - travis/setup-phpbb.sh $DB $TRAVIS_PHP_VERSION
+  - travis/setup-phpbb.sh $DB $TRAVIS_PHP_VERSION $NOTESTS
   - ../mrgoldy/ultimateteams-test/travis/prepare-epv.sh $EPV $NOTESTS
 
 before_script:
