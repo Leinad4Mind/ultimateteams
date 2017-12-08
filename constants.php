@@ -21,7 +21,7 @@ class constants
 	# People can only join on invitation
 	const UT_TEAM_TYPE_CLOSED = 3;
 
-	#================================================#
+	#===============================================#
 
 	# User has joined
 	const UT_USER_STATUS_JOINED = 1;
