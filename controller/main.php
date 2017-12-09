@@ -472,80 +472,80 @@ class main
 				'team_type'			=> $this->request->variable('team_type', 0),
 			);
 
-			# Begin error checking
-				# Check form key for security
-				if (!check_form_key('team_update'))
+		# Begin error checking
+			# Check form key for security
+			if (!check_form_key('team_update'))
+			{
+				$errors[] = $this->lang->lang('FORM_INVALID');
+			}
+
+			# Check if there is a team name ABC
+			if (empty($team_to_update['team_name']) || utf8_strlen($team_to_update['team_name']) > 60)
+			{
+				$errors[] = (!utf8_strlen($team_to_update['team_name'])) ? $this->lang->lang('UT_ERROR_NAME_NONE') : $this->lang->lang('UT_ERROR_NAME', utf8_strlen($team_to_update['team_name']));
+			}
+
+			# Check if the team name is not already in use
+			$team_name = utf8_clean_string($team_to_update['team_name']);
+			$sql = 'SELECT team_name
+					FROM ' . $this->ut_teams_table . "
+					WHERE LOWER(team_name) = '" . $this->db->sql_escape(utf8_strtolower($team_name)) . "'";
+			$sql .= $mode === 'edit' ? ' AND team_id != ' . (int) $team_id : '';
+			$result = $this->db->sql_query($sql);
+			$taken_name = $this->db->sql_fetchfield('team_name');
+			$this->db->sql_freeresult($result);
+
+			if (!empty($taken_name))
+			{
+				$errors[] = $this->lang->lang('UT_ERROR_NAME_TAKEN', $taken_name);
+			}
+
+			# Check if there is a valid colour
+			if (empty($team_to_update['team_colour']))
+			{
+				$errors[] = $this->lang->lang('WRONG_DATA_COLOUR');
+			}
+
+			# Check if there is a valid tag
+			if (empty($team_to_update['team_tag']) || utf8_strlen($team_to_update['team_tag']) > $this->config['ut_tag_length'])
+			{
+				$errors[] = (!utf8_strlen($team_to_update['team_tag'])) ? $this->lang->lang('UT_ERROR_TAG_NONE') : $this->lang->lang('UT_ERROR_TAG', $this->config['ut_tag_length'], utf8_strlen($team_to_update['team_tag']));
+			}
+
+			# Check if the tag is not already in use
+			$sql = 'SELECT team_tag
+					FROM ' . $this->ut_teams_table . "
+					WHERE LOWER(team_tag_clean) = '" . $this->db->sql_escape(utf8_strtolower($team_to_update['team_tag_clean'])) . "'";
+			$sql .= $mode === 'edit' ? ' AND team_id != ' . (int) $team_id : '';
+			$result = $this->db->sql_query($sql);
+			$taken_tag = $this->db->sql_fetchfield('team_tag');
+			$this->db->sql_freeresult($result);
+
+			if (!empty($taken_tag))
+			{
+				$errors[] = $this->lang->lang('UT_ERROR_TAG_TAKEN', $taken_tag);
+			}
+
+			# Get an instance of the files upload class
+			$upload = $this->files_factory->get('upload')
+					-> set_max_filesize($this->config['ut_image_size'] * 1000)
+					-> set_allowed_extensions(array('png', 'jpg', 'jpeg', 'gif'));
+
+			$upload_file = $upload->handle_upload('files.types.form', 'team_image');
+
+			# Check for errors, only when adding a new file
+			if ($upload_file->get('uploadname'))
+			{
+				if (!empty($upload_file->error) || !$upload_file->is_image() || !$upload_file->is_uploaded() || $upload_file->init_error())
 				{
-					$errors[] = $this->lang->lang('FORM_INVALID');
-				}
-
-				# Check if there is a team name ABC
-				if (empty($team_to_update['team_name']) || utf8_strlen($team_to_update['team_name']) > 60)
-				{
-					$errors[] = (!utf8_strlen($team_to_update['team_name'])) ? $this->lang->lang('UT_ERROR_NAME_NONE') : $this->lang->lang('UT_ERROR_NAME', utf8_strlen($team_to_update['team_name']));
-				}
-
-				# Check if the team name is not already in use
-				$team_name = utf8_clean_string($team_to_update['team_name']);
-				$sql = 'SELECT team_name
-						FROM ' . $this->ut_teams_table . "
-						WHERE LOWER(team_name) = '" . $this->db->sql_escape(utf8_strtolower($team_name)) . "'";
-				$sql .= $mode === 'edit' ? ' AND team_id != ' . (int) $team_id : '';
-				$result = $this->db->sql_query($sql);
-				$taken_name = $this->db->sql_fetchfield('team_name');
-				$this->db->sql_freeresult($result);
-
-				if (!empty($taken_name))
-				{
-					$errors[] = $this->lang->lang('UT_ERROR_NAME_TAKEN', $taken_name);
-				}
-
-				# Check if there is a valid colour
-				if (empty($team_to_update['team_colour']))
-				{
-					$errors[] = $this->lang->lang('WRONG_DATA_COLOUR');
-				}
-
-				# Check if there is a valid tag
-				if (empty($team_to_update['team_tag']) || utf8_strlen($team_to_update['team_tag']) > $this->config['ut_tag_length'])
-				{
-					$errors[] = (!utf8_strlen($team_to_update['team_tag'])) ? $this->lang->lang('UT_ERROR_TAG_NONE') : $this->lang->lang('UT_ERROR_TAG', $this->config['ut_tag_length'], utf8_strlen($team_to_update['team_tag']));
-				}
-
-				# Check if the tag is not already in use
-				$sql = 'SELECT team_tag
-						FROM ' . $this->ut_teams_table . "
-						WHERE LOWER(team_tag_clean) = '" . $this->db->sql_escape(utf8_strtolower($team_to_update['team_tag_clean'])) . "'";
-				$sql .= $mode === 'edit' ? ' AND team_id != ' . (int) $team_id : '';
-				$result = $this->db->sql_query($sql);
-				$taken_tag = $this->db->sql_fetchfield('team_tag');
-				$this->db->sql_freeresult($result);
-
-				if (!empty($taken_tag))
-				{
-					$errors[] = $this->lang->lang('UT_ERROR_TAG_TAKEN', $taken_tag);
-				}
-
-				# Get an instance of the files upload class
-				$upload = $this->files_factory->get('upload')
-						-> set_max_filesize($this->config['ut_image_size'] * 1000)
-						-> set_allowed_extensions(array('png', 'jpg', 'jpeg', 'gif'));
-
-				$upload_file = $upload->handle_upload('files.types.form', 'team_image');
-
-				# Check for errors, only when adding a new file
-				if ($upload_file->get('uploadname'))
-				{
-					if (!empty($upload_file->error) || !$upload_file->is_image() || !$upload_file->is_uploaded() || $upload_file->init_error())
+					$upload_file->remove();
+					foreach ($upload_file->error as $file_error)
 					{
-						$upload_file->remove();
-						foreach ($upload_file->error as $file_error)
-						{
-							$errors[] = $file_error;
-						}
+						$errors[] = $file_error;
 					}
 				}
-			# End error checking
+			}
+		# End error checking
 
 			if (!empty($submit) && empty($errors))
 			{
@@ -910,7 +910,7 @@ class main
 						if ($this->user->data['user_id'] == $subject_id)
 						{
 							$this->send_ut_notification('left', $team_id, $team['team_name'], $this->user->data['user_id'], $team_leaders);
-							$success_language = $this->lang->lang('UT_LEAVE_SELF_SUCCESS', $team['team_name']);;
+							$success_language = $this->lang->lang('UT_LEAVE_SELF_SUCCESS', $team['team_name']);
 							$refresh_url = $this->helper->route('mrgoldy_ultimateteams_view', array('team_id' => $team_id));
 						}
 						else
