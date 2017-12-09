@@ -545,7 +545,7 @@ class main
 					}
 				}
 			}
-		 	// ===== End error checking ====
+			// ===== End error checking ====
 
 			if (!empty($submit) && empty($errors))
 			{
