@@ -14,7 +14,7 @@ Go to "ACP" > "Customise" > "Extensions" and enable the "Ultimate Teams" extensi
 ```
 
 ## Overview
-[![Build Status](https://travis-ci.org/mrgoldy/ultimateteams.svg?branch=master)](https://travis-ci.org/mrgoldy/ultimateteams)
+[![Build Status](https://travis-ci.org/mrgoldy/ultimateteams.svg?branch=master)](https://travis-ci.org/mrgoldy/ultimateteams) <br />
 Coming soon..
 
 ## Development
