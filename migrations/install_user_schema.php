@@ -34,7 +34,7 @@ class install_user_schema extends \phpbb\db\migration\migration
 						'team_tag'			=> array('VCHAR_UNI:20', ''),
 						'team_tag_clean'	=> array('VCHAR_UNI:20', ''),
 						'team_colour'		=> array('VCHAR:6', ''),
-						'team_description'	=> array('MTEXT', ''),
+						'team_description'	=> array('VARCHAR:255', ''),
 						'team_image'		=> array('VCHAR:100', ''),
 						'team_website'		=> array('VCHAR:200', ''),
 						'team_location'		=> array('VCHAR:100', ''),

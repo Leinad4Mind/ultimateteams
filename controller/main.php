@@ -836,69 +836,20 @@ class main
 		$team = $this->db->sql_fetchrow($result);
 		$this->db->sql_freeresult($result);
 
-		switch ($mode)
+		if ($this->request->is_ajax())
 		{
-			case 'request':
-			# Switch the action variable (APPLY | WITHDRAW | DENY | ACCEPT)
-				switch ($action)
+			if (confirm_box(true))
+			{
+				# Switch modes: request, invite, leave, promote, demote, default
+				switch ($mode)
 				{
-					case 'apply':
-						# Check if current team is not a CLOSED team
-						if ($team['team_type'] == constants::UT_TEAM_TYPE_CLOSED)
-						{
-							trigger_error($this->lang->lang('UT_ERROR_TEAM_CLOSED'));
-						}
-
-						# Check if subject is not already in an other team and multiple teams is disabled
-						if (!empty($this->user->data['user_team_id']) && !$this->config['ut_multiple_teams'])
-						{
-							trigger_error($this->lang->lang('UT_ERROR_ALREADY_IN_TEAM'));
-						}
-					break;
-
-					/*
-					case 'withdraw':
-					break;
-					 */
-
-					case 'deny':
-						# Check if current user is team leader and has the permission to edit the team.
-						if (!$is_leader || !$this->auth->acl_get('u_ut_edit'))
-						{
-							trigger_error($this->lang->lang('NOT_AUTHORISED'));
-						}
-					break;
-
-					case 'accept':
-						# Check if current user is team leader and has the permission to edit the team.
-						if (!$is_leader || !$this->auth->acl_get('u_ut_edit'))
-						{
-							trigger_error($this->lang->lang('NOT_AUTHORISED'));
-						}
-
-						# Check if subject is not already in an other team and multiple teams is disabled
-						if (!empty($this->user->data['user_id']) && !$this->config['ut_multiple_teams'])
-						{
-							trigger_error($this->lang->lang('UT_ERROR_ALREADY_OTHER_TEAM'));
-						}
-					break;
-				}
-
-				if ($this->request->is_ajax())
-				{
-					if (confirm_box(true))
-					{
+					case 'request':
 						switch ($action)
 						{
 							case 'apply':
-								$user_status = $team['team_type'] == constants::UT_TEAM_TYPE_OPEN ? constants::UT_USER_STATUS_JOINED : constants::UT_USER_STATUS_REQUESTED;
-								$this->add_correlation($team_id, $subject_id, $user_status);
+								$this->add_correlation($team_id, $subject_id, ($team['team_type'] == constants::UT_TEAM_TYPE_OPEN ? constants::UT_USER_STATUS_JOINED : constants::UT_USER_STATUS_REQUESTED));
+								$this->send_ut_notification(($team['team_type'] == constants::UT_TEAM_TYPE_OPEN ? 'request_joined' : 'request_send'), $team_id, $team['team_name'], $this->user->data['user_id'], array($subject_id));
 								$refresh_url = $this->helper->route('mrgoldy_ultimateteams_view', array('team_id' => $team_id));
-
-								# Send a notification to the leaders
-								# send_ut_notification($event, $team_id, $team_name, $actionee_id, $recipients_array)
-								$notification_mode = $team['team_type'] == constants::UT_TEAM_TYPE_OPEN ? 'request_joined' : 'request_send';
-								$this->send_ut_notification($notification_mode, $team_id, $team['team_name'], $this->user->data['user_id'], array($subject_id));
 							break;
 
 							case 'withdraw':
@@ -908,92 +859,27 @@ class main
 
 							case 'deny':
 								$this->remove_correlation($team_id, $subject_id);
-								$refresh_url = $this->helper->route('mrgoldy_ultimateteams_manage', array('team_id' => $team_id, 'mode' => 'edit'));
-
-								# Send a notification to the subject
-								# send_ut_notification($event, $team_id, $team_name, $actionee_id, $recipients_array)
 								$this->send_ut_notification('request_denied', $team_id, $team['team_name'], $this->user->data['user_id'], array($subject_id));
+								$refresh_url = $this->helper->route('mrgoldy_ultimateteams_manage', array('team_id' => $team_id, 'mode' => 'edit'));
 							break;
 
 							case 'accept':
 								$this->update_correlation($team_id, $subject_id, constants::UT_USER_STATUS_JOINED);
-								$refresh_url = $this->helper->route('mrgoldy_ultimateteams_manage', array('team_id' => $team_id, 'mode' => 'edit'));
-
-								# Send a notification to the subject
-								# send_ut_notification($event, $team_id, $team_name, $actionee_id, $recipients_array)
 								$this->send_ut_notification('request_accepted', $team_id, $team['team_name'], $this->user->data['user_id'], array($subject_id));
+								$refresh_url = $this->helper->route('mrgoldy_ultimateteams_manage', array('team_id' => $team_id, 'mode' => 'edit'));
 							break;
 						}
 
-						# Show success message
+						# Success language
 						$success_language = ($team['team_type'] == constants::UT_TEAM_TYPE_OPEN && $action === 'apply') ? $this->lang->lang('UT_REQUEST_JOIN_SUCCESS') : $this->lang->lang('UT_REQUEST_' . strtoupper($action) . '_SUCCESS');
-						return new JsonResponse(array(
-							'MESSAGE_TITLE'	=> $this->lang->lang('CONFIRM'),
-							'MESSAGE_TEXT'	=> $success_language,
-							'REFRESH_DATA'	=> array('url' => $refresh_url, 'time' => 3),
-						));
-					}
-					else
-					{
-						$confirm_language = ($team['team_type'] == constants::UT_TEAM_TYPE_OPEN && $action === 'apply') ? $this->lang->lang('UT_REQUEST_JOIN_CONFIRM') : $this->lang->lang('UT_REQUEST_' . strtoupper($action) . '_CONFIRM');
-
-						# Display mode
-						confirm_box(false, $confirm_language, build_hidden_fields(array(
-							'subject_id'	=> $subject_id,
-							'team_id'		=> $team_id,
-							'action'		=> $action,
-							'mode'			=> $mode,
-						)), 'confirm_body.html', $this->helper->route('mrgoldy_ultimateteams_member', array('team_id' => (int) $team_id, 'mode' => $mode, 'subject_id' => $subject_id, 'action' => $action)));
-					}
-				}
-			break;
-
-			case 'invite':
-				# Switch the action variable (SEND | WITHDRAW | DENY | ACCEPT)
-				switch ($action)
-				{
-					case 'send':
-						# Check if current user is team leader and has the permission to edit the team.
-						if (!$is_leader || !$this->auth->acl_get('u_ut_edit'))
-						{
-							trigger_error($this->lang->lang('NOT_AUTHORISED'));
-						}
 					break;
 
-					case 'withdraw':
-						# Check if current user is team leader and has the permission to edit the team.
-						if (!$is_leader || !$this->auth->acl_get('u_ut_edit'))
-						{
-							trigger_error($this->lang->lang('NOT_AUTHORISED'));
-						}
-					break;
-
-					/*
-					case 'deny':
-					break;
-					*/
-
-					case 'accept':
-						# Check if subject is not already in an other team and multiple teams is disabled
-						if (!empty($this->user->data['user_team_id']) && !$this->config['ut_multiple_teams'])
-						{
-							trigger_error($this->lang->lang('UT_ERROR_ALREADY_OTHER_TEAM'));
-						}
-					break;
-				}
-
-				if ($this->request->is_ajax())
-				{
-					if (confirm_box(true))
-					{
+					case 'invite':
 						switch ($action)
 						{
 							case 'send':
 								$this->add_correlation($team_id, $subject_id, constants::UT_USER_STATUS_INVITED);
 								$refresh_url = $this->helper->route('mrgoldy_ultimateteams_manage', array('team_id' => $team_id, 'mode' => 'edit'));
-
-								# Send notification to the subject
-								# send_ut_notification($event, $team_id, $team_name, $actionee_id, $recipients_array)
 								$this->send_ut_notification('invite_send', $team_id, $team['team_name'], $this->user->data['user_id'], array($subject_id));
 							break;
 
@@ -1005,146 +891,188 @@ class main
 							case 'deny':
 								$this->remove_correlation($team_id, $subject_id);
 								$refresh_url = $this->helper->route('mrgoldy_ultimateteams_view', array('team_id' => $team_id));
-
-								# Send notification to the subject
-								# send_ut_notification($event, $team_id, $team_name, $actionee_id, $recipients_array)
 								$this->send_ut_notification('invite_denied', $team_id, $team['team_name'], $this->user->data['user_id'], $team_leaders);
 							break;
 
 							case 'accept':
 								$this->update_correlation($team_id, $subject_id, constants::UT_USER_STATUS_JOINED);
 								$refresh_url = $this->helper->route('mrgoldy_ultimateteams_view', array('team_id' => $team_id));
-
-								# Send notification to the subject
-								# send_ut_notification($event, $team_id, $team_name, $actionee_id, $recipients_array)
 								$this->send_ut_notification('invite_accepted', $team_id, $team['team_name'], $this->user->data['user_id'], $team_leaders);
 							break;
 						}
 
-						# Show success message
+						# Success language
 						$success_language = $this->lang->lang('UT_INVITE_' . strtoupper($action) . '_SUCCESS');
-						return new JsonResponse(array(
-							'MESSAGE_TITLE'	=> $this->lang->lang('CONFIRM'),
-							'MESSAGE_TEXT'	=> $success_language,
-							'REFRESH_DATA'	=> array('url' => $refresh_url, 'time' => 3),
-						));
-					}
-					else
-					{
-						if ($action === 'send')
+					break;
+
+					case 'leave':
+						# User ID = Subject ? SELF LEAVE otherwise KICK
+						if ($this->user->data['user_id'] == $subject_id)
 						{
-							$username = $this->request->variable('invitee_username', '', true);
-							# Grab the User ID from the input username
-							$sql = 'SELECT user_id, user_team_id
-									FROM ' . USERS_TABLE . "
-									WHERE username_clean = '" . $this->db->sql_escape(utf8_clean_string($username)) . "'
-										AND user_type <> " . USER_IGNORE;
-							$result = $this->db->sql_query($sql);
-							$row = $this->db->sql_fetchrow($result);
-							$this->db->sql_freeresult($result);
-
-							if (empty($row['user_id']))
-							{
-								trigger_error($this->lang->lang('NO_USER'));
-							}
-
-							# Check if subject is not already in an other team and multiple teams is disabled
-							if (!empty($row['user_team_id']) && !$this->config['ut_multiple_teams'])
-							{
-								trigger_error($this->lang->lang('UT_ERROR_ALREADY_OTHER_TEAM'));
-							}
-
-							# Then set subject ID to this user's id
-							$subject_id = (int) $row['user_id'];
+							$this->send_ut_notification('left', $team_id, $team['team_name'], $this->user->data['user_id'], $team_leaders);
+							$success_language = $this->lang->lang('UT_LEAVE_SELF_SUCCESS', $team['team_name']);;
+							$refresh_url = $this->helper->route('mrgoldy_ultimateteams_view', array('team_id' => $team_id));
 						}
-						$confirm_language = $this->lang->lang('UT_INVITE_' . strtoupper($action) . '_CONFIRM');
+						else
+						{
+							$this->send_ut_notification('kicked', $team_id, $team['team_name'], $this->user->data['user_id'], array($subject_id));
+							$success_language = $this->lang->lang('UT_LEAVE_KICK_SUCCESS', $team['team_name']);
+							$refresh_url = $this->helper->route('mrgoldy_ultimateteams_manage', array('team_id' => $team_id, 'mode' => 'edit'));
+						}
 
-						# Display mode
-						confirm_box(false, $confirm_language, build_hidden_fields(array(
+						$this->remove_correlation($team_id, $subject_id);
+						$this->update_default_team($team_id, $subject_id);
+					break;
+
+					case 'promote':
+					case 'demote':
+						$team_leader_status = $mode === 'promote' ? (int) 1 : (int) 0;
+						$sql = 'UPDATE ' . $this->ut_correlation_table . ' SET team_leader = ' . $team_leader_status . ' WHERE team_id = ' . (int) $team_id . ' AND user_id = ' . (int) $subject_id;
+						$this->db->sql_query($sql);
+
+						$this->send_ut_notification($mode . 'd', $team_id, $team['team_name'], $this->user->data['user_id'], array($subject_id));
+						$success_language = $this->lang->lang('UT_LEADER_' . strtoupper($mode) . '_SUCCESS');
+						$refresh_url = $this->helper->route('mrgoldy_ultimateteams_manage', array('team_id' => $team_id, 'mode' => 'edit'));
+					break;
+
+					case 'default':
+						# Make team default for member
+						$sql = 'UPDATE ' . USERS_TABLE . ' SET user_team_id = ' . (int) $team_id . ' WHERE user_id = ' . (int) $subject_id;
+						$this->db->sql_query($sql);
+
+						# Success
+						$success_language = $this->lang->lang('UT_TEAM_DEFAULT_SUCCESS', $team['team_name']);
+						$refresh_url = $this->helper->route('mrgoldy_ultimateteams_view', array('team_id' => $team_id));
+					break;
+				}
+
+				return new JsonResponse(array(
+					'MESSAGE_TITLE'	=> $this->lang->lang('CONFIRM'),
+					'MESSAGE_TEXT'	=> $success_language,
+					'REFRESH_DATA'	=> array('url' => $refresh_url, 'time' => 3),
+				));
+			}
+			else
+			{
+				# Switch modes: request, invite, leave, promote, demote, default
+				switch ($mode)
+				{
+					case 'request':
+						switch ($action)
+						{
+							case 'apply':
+								# Check if current team is not a CLOSED team
+								if ($team['team_type'] == constants::UT_TEAM_TYPE_CLOSED)
+								{
+									trigger_error($this->lang->lang('UT_ERROR_TEAM_CLOSED'));
+								}
+							break;
+
+							// case 'withdraw': (no checks to be performed)
+
+							case 'accept':
+								# Check if subject is not already in an other team and multiple teams is disabled
+								if (!empty($this->user->data['user_id']) && !$this->config['ut_multiple_teams'])
+								{
+									trigger_error($this->lang->lang('UT_ERROR_ALREADY_OTHER_TEAM'));
+								}
+							// NO break;
+
+							case 'deny':
+								# Check if current user is team leader and has the permission to edit the team.
+								if (!$is_leader || !$this->auth->acl_get('u_ut_edit'))
+								{
+									trigger_error($this->lang->lang('NOT_AUTHORISED'));
+								}
+							break;
+						}
+
+						$confirm_box_action = $this->helper->route('mrgoldy_ultimateteams_member', array('team_id' => (int) $team_id, 'mode' => $mode, 'subject_id' => $subject_id, 'action' => $action));
+						$confirm_language = ($team['team_type'] == constants::UT_TEAM_TYPE_OPEN && $action === 'apply') ? $this->lang->lang('UT_REQUEST_JOIN_CONFIRM') : $this->lang->lang('UT_REQUEST_' . strtoupper($action) . '_CONFIRM');
+						$hidden_fiels_array = array(
 							'subject_id'	=> $subject_id,
 							'team_id'		=> $team_id,
 							'action'		=> $action,
 							'mode'			=> $mode,
-						)), 'confirm_body.html', $this->helper->route('mrgoldy_ultimateteams_member', array('team_id' => (int) $team_id, 'mode' => $mode, 'subject_id' => $subject_id, 'action' => $action)));
-					}
-				}
-			break;
+						);
+					break;
 
-			case 'leave':
-				# Make sure subject is in this team.
-				$user_is_member = $this->check_membership($team_id, $subject_id);
-
-				if (!$user_is_member)
-				{
-					trigger_error($this->lang->lang('UT_ERROR_NOT_MEMBER', $team['team_name']));
-				}
-
-				# Check if the subject ID is the same as current user ID, IF so: User is leaving, ELSE user is kicked
-				if ($this->user->data['user_id'] == $subject_id)
-				{
-					if ($this->request->is_ajax())
-					{
-						if (confirm_box(true))
+					case 'invite':
+						switch ($action)
 						{
-							# Remove the correlation
-							$this->remove_correlation($team_id, $subject_id);
+							case 'send':
+								$username = $this->request->variable('invitee_username', '', true);
+								# Grab the User ID from the input username
+								$sql = 'SELECT user_id, user_team_id
+										FROM ' . USERS_TABLE . "
+										WHERE username_clean = '" . $this->db->sql_escape(utf8_clean_string($username)) . "'
+											AND user_type <> " . USER_IGNORE;
+								$result = $this->db->sql_query($sql);
+								$row = $this->db->sql_fetchrow($result);
+								$this->db->sql_freeresult($result);
 
-							# Check if it's default group, otherwise update it
-							$this->update_default_team($team_id, $subject_id);
+								if (empty($row['user_id']))
+								{
+									trigger_error($this->lang->lang('NO_USER'));
+								}
 
-							# Send out a notification to the leaders
-							# send_ut_notification($event, $team_id, $team_name, $actionee_id, $recipients_array)
-							$this->send_ut_notification('left', $team_id, $team['team_name'], $this->user->data['user_id'], $team_leaders);
+								# Check if subject is not already in an other team and multiple teams is disabled
+								if (!empty($row['user_team_id']) && !$this->config['ut_multiple_teams'])
+								{
+									trigger_error($this->lang->lang('UT_ERROR_ALREADY_OTHER_TEAM'));
+								}
 
-							# Show success message
-							$success_language = $this->lang->lang('UT_LEAVE_SELF_SUCCESS', $team['team_name']);
-							return new JsonResponse(array(
-								'MESSAGE_TITLE'	=> $this->lang->lang('CONFIRM'),
-								'MESSAGE_TEXT'	=> $success_language,
-								'REFRESH_DATA'	=> array('url' => $this->helper->route('mrgoldy_ultimateteams_view', array('team_id' => $team_id)), 'time' => 3),
-							));
+								# Then set subject ID to this user's id
+								$subject_id = (int) $row['user_id'];
+							// NO break;
+
+							case 'withdraw':
+								# Check if current user is team leader and has the permission to edit the team.
+								if (!$is_leader || !$this->auth->acl_get('u_ut_edit'))
+								{
+									trigger_error($this->lang->lang('NOT_AUTHORISED'));
+								}
+							break;
+
+							// case 'deny': (no checks to be performed)
+
+							case 'accept':
+								# Check if subject is not already in an other team and multiple teams is disabled
+								if (!empty($this->user->data['user_team_id']) && !$this->config['ut_multiple_teams'])
+								{
+									trigger_error($this->lang->lang('UT_ERROR_ALREADY_OTHER_TEAM'));
+								}
+							break;
 						}
-						else
+
+						# Set up confirm box:
+						$confirm_box_action = $this->helper->route('mrgoldy_ultimateteams_member', array('team_id' => (int) $team_id, 'mode' => $mode, 'subject_id' => $subject_id, 'action' => $action));
+						$confirm_language = $this->lang->lang('UT_INVITE_' . strtoupper($action) . '_CONFIRM');
+						$hidden_fields_array = array(
+							'subject_id'	=> $subject_id,
+							'team_id'		=> $team_id,
+							'action'		=> $action,
+							'mode'			=> $mode,
+						);
+					break;
+
+					case 'leave':
+						# Make sure subject is in this team.
+						$user_is_member = $this->check_membership($team_id, $subject_id);
+
+						if (!$user_is_member)
+						{
+							trigger_error($this->lang->lang('UT_ERROR_NOT_MEMBER', $team['team_name']));
+						}
+
+						# User ID = Subject ? SELF LEAVE otherwise KICK
+						if ($this->user->data['user_id'] == $subject_id)
 						{
 							# Check if user is not the only leader trying to leave.
 							if (in_array($subject_id, $team_leaders) && count($team_leaders) == 1)
 							{
 								trigger_error($this->lang->lang('UT_ERROR_ONLY_LEADER'));
 							}
-
-							# Display mode
-							confirm_box(false, $confirm_language, build_hidden_fields(array(
-								'subject_id'	=> $subject_id,
-								'team_id'		=> $team_id,
-								'action'		=> $action,
-								'mode'			=> $mode,
-							)), 'confirm_body.html', $this->helper->route('mrgoldy_ultimateteams_member', array('team_id' => (int) $team_id, 'mode' => $mode, 'subject_id' => $subject_id, 'action' => $action)));
-						}
-					}
-				}
-				else
-				{
-					if ($this->request->is_ajax())
-					{
-						if (confirm_box(true))
-						{
-							# Remove the correlation
-							$this->remove_correlation($team_id, $subject_id);
-
-							# Check if it's default group, otherwise update it.
-							$this->update_default_team($team_id, $subject_id);
-
-							# Send out a notification to the subject
-							# send_ut_notification($event, $team_id, $team_name, $actionee_id, $recipients_array)
-							$this->send_ut_notification('kicked', $team_id, $team['team_name'], $this->user->data['user_id'], array($subject_id));
-
-							# Show success message
-							$success_language = $this->lang->lang('UT_LEAVE_KICK_SUCCESS', $team['team_name']);
-							return new JsonResponse(array(
-								'MESSAGE_TITLE'	=> $this->lang->lang('CONFIRM'),
-								'MESSAGE_TEXT'	=> $success_language,
-								'REFRESH_DATA'	=> array('url' => $this->helper->route('mrgoldy_ultimateteams_manage', array('team_id' => $team_id, 'mode' => 'edit')), 'time' => 3),
-							));
 						}
 						else
 						{
@@ -1153,104 +1081,19 @@ class main
 							{
 								trigger_error($this->lang->lang('NOT_AUTHORISED'));
 							}
-
-							# Display mode
-							confirm_box(false, $this->lang->lang('UT_LEAVE_KICK_CONFIRM', $team['team_name']), build_hidden_fields(array(
-								'subject_id'	=> $subject_id,
-								'team_id'		=> $team_id,
-								'mode'			=> $mode,
-							)));
-						}
-					}
-				}
-			break;
-
-			# Promote a user to being a team leader.
-			case 'promote':
-				if ($this->request->is_ajax())
-				{
-					if (confirm_box(true))
-					{
-						# Promote user to leader
-						$sql = 'UPDATE ' . $this->ut_correlation_table . ' SET team_leader = 1 WHERE team_id = ' . (int) $team_id . ' AND user_id = ' . (int) $subject_id;
-						$this->db->sql_query($sql);
-
-						# Send out a notification to the subject
-						# send_ut_notification($event, $team_id, $team_name, $actionee_id, $recipients_array)
-						$this->send_ut_notification('promoted', $team_id, $team['team_name'], $this->user->data['user_id'], array($subject_id));
-
-						# Show success message
-						$success_language = $this->lang->lang('UT_LEADER_PROMOTE_SUCCESS');
-						return new JsonResponse(array(
-							'MESSAGE_TITLE'	=> $this->lang->lang('CONFIRM'),
-							'MESSAGE_TEXT'	=> $success_language,
-							'REFRESH_DATA'	=> array('url' => $this->helper->route('mrgoldy_ultimateteams_manage', array('team_id' => $team_id, 'mode' => 'edit')), 'time' => 3),
-						));
-					}
-					else
-					{
-						# Make sure subject is in this team.
-						$user_is_member = $this->check_membership($team_id, $subject_id);
-
-						if (!$user_is_member)
-						{
-							trigger_error($this->lang->lang('UT_ERROR_NOT_MEMBER', $team['team_name']));
 						}
 
-						# Check if current user is team leader and has the permission to edit the team.
-						if (!$is_leader || !$this->auth->acl_get('u_ut_edit'))
-						{
-							trigger_error($this->lang->lang('NOT_AUTHORISED'));
-						}
-
-						# Display mode
-						confirm_box(false, $this->lang->lang('UT_LEADER_PROMOTE_CONFIRM'), build_hidden_fields(array(
+						# Set up confirm box:
+						$confirm_box_action = $this->user->data['user_id'] == $subject_id ? $this->helper->route('mrgoldy_ultimateteams_member', array('team_id' => (int) $team_id, 'mode' => $mode, 'subject_id' => $subject_id, 'action' => $action)) : '';
+						$confirm_language = $this->user->data['user_id'] == $subject_id ? $this->lang->lang('UT_LEAVE_SELF_COMFIRM', $team['team_name']) : $this->lang->lang('UT_LEAVE_KICK_CONFIRM', $team['team_name']);
+						$hidden_fields_array = array(
 							'subject_id'	=> $subject_id,
 							'team_id'		=> $team_id,
 							'mode'			=> $mode,
-						)));
-					}
-				}
-			break;
+						);
+					break;
 
-			# Demote a user from being a team leader.
-			case 'demote':
-				if ($this->request->is_ajax())
-				{
-					if (confirm_box(true))
-					{
-						# Demote the person from being a team leader
-						$sql = 'UPDATE ' . $this->ut_correlation_table . ' SET team_leader = 0 WHERE team_id = ' . (int) $team_id . ' AND user_id = ' . (int) $subject_id;
-						$this->db->sql_query($sql);
-
-						# Send out a notification to the subject
-						# send_ut_notification($event, $team_id, $team_name, $actionee_id, $recipients_array)
-						$this->send_ut_notification('demoted', $team_id, $team['team_name'], $this->user->data['user_id'], array($subject_id));
-
-						# Show success message
-						$success_language = $this->lang->lang('UT_LEADER_DEMOTE_SUCCESS');
-						return new JsonResponse(array(
-							'MESSAGE_TITLE'	=> $this->lang->lang('CONFIRM'),
-							'MESSAGE_TEXT'	=> $success_language,
-							'REFRESH_DATA'	=> array('url' => $this->helper->route('mrgoldy_ultimateteams_manage', array('team_id' => $team_id, 'mode' => 'edit')), 'time' => 3),
-						));
-					}
-					else
-					{
-						# Make sure subject is in this team.
-						$user_is_member = $this->check_membership($team_id, $subject_id);
-
-						if (!$user_is_member)
-						{
-							trigger_error($this->lang->lang('UT_ERROR_NOT_MEMBER', $team['team_name']));
-						}
-
-						# Check if current user is team leader and has the permission to edit the team.
-						if (!$is_leader || !$this->auth->acl_get('u_ut_edit'))
-						{
-							trigger_error($this->lang->lang('NOT_AUTHORISED'));
-						}
-
+					case 'demote':
 						# Check if subject is even a leader
 						if (!in_array($subject_id, $team_leaders))
 						{
@@ -1262,37 +1105,34 @@ class main
 						{
 							trigger_error($this->lang->lang('UT_ERROR_ONLY_LEADER'));
 						}
+					// NO break;
 
-						# Display mode
-						confirm_box(false, $this->lang->lang('UT_LEADER_DEMOTE_CONFIRM'), build_hidden_fields(array(
+					case 'promote':
+						# Make sure subject is in this team.
+						$user_is_member = $this->check_membership($team_id, $subject_id);
+
+						if (!$user_is_member)
+						{
+							trigger_error($this->lang->lang('UT_ERROR_NOT_MEMBER', $team['team_name']));
+						}
+
+						# Check if current user is team leader and has the permission to edit the team.
+						if (!$is_leader || !$this->auth->acl_get('u_ut_edit'))
+						{
+							trigger_error($this->lang->lang('NOT_AUTHORISED'));
+						}
+
+						# Set up confirm box:
+						$confirm_box_action = '';
+						$confirm_language = $this->lang->lang('UT_LEADER_' . strtoupper($mode) . '_CONFIRM');
+						$hidden_fields_array = array(
 							'subject_id'	=> $subject_id,
 							'team_id'		=> $team_id,
 							'mode'			=> $mode,
-						)));
-					}
-				}
-			break;
+						);
+					break;
 
-			# Not the switch-default, make team default for member
-			case 'default':
-				if ($this->request->is_ajax())
-				{
-					if (confirm_box(true))
-					{
-						# Make team default for member
-						$sql = 'UPDATE ' . USERS_TABLE . ' SET user_team_id = ' . (int) $team_id . ' WHERE user_id = ' . (int) $subject_id;
-						$this->db->sql_query($sql);
-
-						# Show success message
-						$success_language = $this->lang->lang('UT_TEAM_DEFAULT_SUCCESS', $team['team_name']);
-						return new JsonResponse(array(
-							'MESSAGE_TITLE'	=> $this->lang->lang('CONFIRM'),
-							'MESSAGE_TEXT'	=> $success_language,
-							'REFRESH_DATA'	=> array('url' => $this->helper->route('mrgoldy_ultimateteams_view', array('team_id' => $team_id)), 'time' => 3),
-						));
-					}
-					else
-					{
+					case 'default':
 						# Make sure user is in this team.
 						$user_is_member = $this->check_membership($team_id, $subject_id);
 
@@ -1301,15 +1141,24 @@ class main
 							trigger_error($this->lang->lang('UT_ERROR_NOT_MEMBER', $team['team_name']));
 						}
 
-						# Display mode
-						confirm_box(false, $this->lang->lang('UT_TEAM_DEFAULT_CONFIRM', $team['team_name']), build_hidden_fields(array(
+						# Set up confirm box:
+						$confirm_box_action = $this->helper->route('mrgoldy_ultimateteams_member', array('team_id' => (int) $team_id, 'mode' => $mode, 'subject_id' => $subject_id));
+						$confirm_language = $this->lang->lang('UT_TEAM_DEFAULT_CONFIRM', $team['team_name']);
+						$hidden_fields_array = array(
 							'subject_id'	=> $subject_id,
 							'team_id'		=> $team_id,
 							'mode'			=> $mode,
-						)), 'confirm_body.html', $this->helper->route('mrgoldy_ultimateteams_member', array('team_id' => (int) $team_id, 'mode' => $mode, 'subject_id' => $subject_id)));
-					}
+						);
+					break;
 				}
-			break;
+
+				# Display mode
+				confirm_box(false,
+							$confirm_language,
+							build_hidden_fields($hidden_fields_array),
+							'confirm_body.html',
+							$confirm_box_action);
+			}
 		}
 	}
 
