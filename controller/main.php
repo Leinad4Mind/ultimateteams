@@ -472,7 +472,7 @@ class main
 				'team_type'			=> $this->request->variable('team_type', 0),
 			);
 
-		# Begin error checking
+			// ===== Begin error checking =====
 			# Check form key for security
 			if (!check_form_key('team_update'))
 			{
@@ -545,7 +545,7 @@ class main
 					}
 				}
 			}
-		# End error checking
+		 	// ===== End error checking ====
 
 			if (!empty($submit) && empty($errors))
 			{
