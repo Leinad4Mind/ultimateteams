@@ -3,8 +3,8 @@
 ---
 > A strong team is the foundation of high-performing forum and a good team ethic can be held largely accountable for the success and smooth running of the board. Now let your users create their own teams and represent their shared name. Add that extra bit of organisation and fun to your phpBB forum!<br><br>
 > **Ultimate Teams**. *An extension for the phpBB Forum Software package.*
----
 
+---
 
 ## Install
 ```javascript
@@ -20,7 +20,7 @@ Coming soon..
 ## Development
 
 ### Contribute
-If you would like to contribute to this extension, then you can [create a Pull Request](https://github.com/mrgoldy/ultimateteams/pulls "Create a Pull Request for Mr. Goldy's Ultimate Teams")
+If you would like to contribute to this extension, then you can [create a Pull Request](https://github.com/mrgoldy/ultimateteams/pulls "Create a Pull Request for Mr. Goldy's Ultimate Teams").
 
 ### Bug / Feature request
 If you find a **bug**, please report it over at [Ultimate Teams issues](https://github.com/mrgoldy/ultimateblog/issues "Ultimate Teams issues").
