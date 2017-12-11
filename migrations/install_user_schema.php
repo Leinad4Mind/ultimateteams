@@ -42,7 +42,7 @@ class install_user_schema extends \phpbb\db\migration\migration
 					'PRIMARY_KEY'	=> 'team_id',
 				),
 
-				$this->table_prefix . 'ut_correlation'	=> array(
+				$this->table_prefix . 'ut_corr'	=> array(
 					'COLUMNS'		=> array(
 						'team_id'			=> array('UINT', 0),
 						'user_id'			=> array('UINT', 0),
@@ -74,7 +74,7 @@ class install_user_schema extends \phpbb\db\migration\migration
 			),
 			'drop_tables'		=> array(
 				$this->table_prefix . 'ut_teams',
-				$this->table_prefix . 'ut_correlation',
+				$this->table_prefix . 'ut_corr',
 			),
 		);
 	}
