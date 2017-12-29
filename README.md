@@ -23,7 +23,7 @@ Coming soon..
 If you would like to contribute to this extension, then you can [create a Pull Request](https://github.com/mrgoldy/ultimateteams/pulls "Create a Pull Request for Mr. Goldy's Ultimate Teams").
 
 ### Bug / Feature request
-If you find a **bug**, please report it over at [Ultimate Teams issues](https://github.com/mrgoldy/ultimateblog/issues "Ultimate Teams issues").
+If you find a **bug**, please report it over at [Ultimate Teams issues](https://github.com/mrgoldy/ultimateteams/issues "Ultimate Teams issues").
 
 If you would like to request a **feature**, please request it over at [Ultimate Teams development topic](https://www.phpbb.com/community/viewtopic.php?f=456&t=2449321 "Ultimate Teams phpBB's development topic").
 
