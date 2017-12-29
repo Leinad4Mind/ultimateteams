@@ -26,7 +26,7 @@ class install_image_dir extends \phpbb\db\migration\migration
 	public function update_data()
 	{
 		return array(
-			# Create blog images directory
+			# Create teams images directory
 			array('custom', array(array($this, 'create_teams_image_dir'))),
 		);
 	}
